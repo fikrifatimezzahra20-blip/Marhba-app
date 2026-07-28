@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "../models/index.js";
+import generateToken from "../utils/generateToken.js";
 
 // Register
 export const register = async (req, res) => {
@@ -26,14 +27,8 @@ export const register = async (req, res) => {
       password: hashedPassword,
     });
 
-    // Generate JWT
-    const token = jwt.sign(
-      { id: user.id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
-    );
+
+    const token = generateToken(user.id);
 
     res.status(201).json({
       token,
@@ -53,14 +48,66 @@ export const register = async (req, res) => {
 
 // Login
 export const login = async (req, res) => {
-  res.json({
-    message: "Login coming soon"
-  });
+  try {
+    const { email, password } = req.body;
+
+    // Search user
+    const user = await User.findOne({
+      where: { email },
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        error: "Email ou mot de passe incorrect",
+      });
+    }
+
+    // Compare password
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
+
+    if (!isMatch) {
+      return res.status(401).json({
+        error: "Email ou mot de passe incorrect",
+      });
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      {
+        id: user.id,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+      },
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+    });
+  }
 };
 
 // Me
 export const me = async (req, res) => {
-  res.json({
-    message: "Profile coming soon"
-  });
+
+    res.json({
+        id: req.user.id,
+        fullName: req.user.fullName,
+        email: req.user.email
+    });
+
 };

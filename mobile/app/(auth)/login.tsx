@@ -13,19 +13,21 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useLogin } from "../../hooks/useAuthQueries";
 import { useAuthStore } from "../../store/auth.store";
 import { colors, spacing, typography, shadows } from "../../theme";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { login, isLoading, error, clearError } = useAuthStore();
+  const loginMutation = useLogin();
+  const { clearError } = useAuthStore();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     setLocalError(null);
     clearError();
 
@@ -39,17 +41,24 @@ export default function LoginScreen() {
       return;
     }
 
-    const success = await login({
-      email: email.trim(),
-      password,
-    });
-
-    if (success) {
-      router.replace("/home");
-    }
+    loginMutation.mutate(
+      { email: email.trim(), password },
+      {
+        onSuccess: () => {
+          router.replace("/home");
+        },
+      }
+    );
   };
 
-  const activeError = localError || error;
+  const mutationError = loginMutation.error
+    ? (loginMutation.error as any).response?.data?.error ||
+      (loginMutation.error as any).response?.data?.message ||
+      "Connexion échouée. Vérifiez vos identifiants."
+    : null;
+
+  const activeError = localError || mutationError;
+  const isLoading = loginMutation.isPending;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -161,14 +170,14 @@ export default function LoginScreen() {
 
             {/* Link to Register */}
             <View style={styles.footerRow}>
-              <Text style={styles.footerText}>Vous n'avez pas de compte ?</Text>
+              <Text style={styles.footerText}>{"Vous n'avez pas de compte ?"}</Text>
               <TouchableOpacity
                 onPress={() => {
                   clearError();
                   router.push("/register");
                 }}
               >
-                <Text style={styles.registerLink}> S'inscrire</Text>
+                <Text style={styles.registerLink}>{" S'inscrire"}</Text>
               </TouchableOpacity>
             </View>
           </View>

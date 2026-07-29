@@ -1,28 +1,24 @@
-import { useEffect } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import { Redirect } from "expo-router";
 import { useAuthStore } from "../store/auth.store";
 import { colors } from "../theme/colors";
 
 export default function Index() {
-  const router = useRouter();
   const { isInitialized, accessToken, user } = useAuthStore();
 
-  useEffect(() => {
-    if (!isInitialized) return;
+  if (!isInitialized) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
-    if (accessToken && user) {
-      router.replace("/home");
-    } else {
-      router.replace("/login");
-    }
-  }, [isInitialized, accessToken, user]);
+  if (accessToken && user) {
+    return <Redirect href="/home" />;
+  }
 
-  return (
-    <View style={styles.container}>
-      <ActivityIndicator size="large" color={colors.primary} />
-    </View>
-  );
+  return <Redirect href="/login" />;
 }
 
 const styles = StyleSheet.create({

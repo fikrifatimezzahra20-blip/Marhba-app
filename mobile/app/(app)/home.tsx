@@ -11,12 +11,18 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useUserProfile, useLogout } from "../../hooks/useAuthQueries";
 import { useAuthStore } from "../../store/auth.store";
 import { colors, spacing, typography, shadows } from "../../theme";
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { user, logout, isLoading } = useAuthStore();
+  const cachedUser = useAuthStore((state) => state.user);
+  const { data: userProfile, isLoading: isProfileLoading } = useUserProfile();
+  const logoutMutation = useLogout();
+
+  const user = userProfile || cachedUser;
+  const isLoading = isProfileLoading || logoutMutation.isPending;
 
   const handleLogout = () => {
     Alert.alert(
@@ -27,9 +33,12 @@ export default function HomeScreen() {
         {
           text: "Se déconnecter",
           style: "destructive",
-          onPress: async () => {
-            await logout();
-            router.replace("/login");
+          onPress: () => {
+            logoutMutation.mutate(undefined, {
+              onSuccess: () => {
+                router.replace("/login");
+              },
+            });
           },
         },
       ]

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { storage } from "../utils/storage";
+import { useAuthStore } from "../store/auth.store";
 
 // Determine default backend API URL based on environment/platform
 const BASE_URL =
@@ -13,10 +13,10 @@ export const api = axios.create({
   timeout: 10000,
 });
 
-// Request Interceptor: Attach Access Token if available
+// Request Interceptor: Attach Access Token directly from Zustand store
 api.interceptors.request.use(
-  async (config) => {
-    const token = await storage.getAccessToken();
+  (config) => {
+    const token = useAuthStore.getState().accessToken;
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -71,7 +71,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const storedRefreshToken = await storage.getRefreshToken();
+        const storedRefreshToken = useAuthStore.getState().refreshToken;
 
         if (!storedRefreshToken) {
           throw new Error("No refresh token available");
@@ -83,8 +83,11 @@ api.interceptors.response.use(
 
         const { accessToken, refreshToken: newRefreshToken } = response.data;
 
-        await storage.setAccessToken(accessToken);
-        await storage.setRefreshToken(newRefreshToken);
+        // Automatically update Zustand store and persisted storage
+        useAuthStore.setState({
+          accessToken,
+          refreshToken: newRefreshToken,
+        });
 
         api.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -93,7 +96,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        await storage.clearAuth();
+        useAuthStore.getState().clearAuth();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

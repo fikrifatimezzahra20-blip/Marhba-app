@@ -13,12 +13,14 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useRegister } from "../../hooks/useAuthQueries";
 import { useAuthStore } from "../../store/auth.store";
 import { colors, spacing, typography, shadows } from "../../theme";
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const { register, isLoading, error, clearError } = useAuthStore();
+  const registerMutation = useRegister();
+  const { clearError } = useAuthStore();
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,7 +30,7 @@ export default function RegisterScreen() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  const handleRegister = async () => {
+  const handleRegister = () => {
     setLocalError(null);
     clearError();
 
@@ -54,18 +56,28 @@ export default function RegisterScreen() {
       return;
     }
 
-    const success = await register({
-      fullName: fullName.trim(),
-      email: email.trim(),
-      password,
-    });
-
-    if (success) {
-      router.replace("/home");
-    }
+    registerMutation.mutate(
+      {
+        fullName: fullName.trim(),
+        email: email.trim(),
+        password,
+      },
+      {
+        onSuccess: () => {
+          router.replace("/home");
+        },
+      }
+    );
   };
 
-  const activeError = localError || error;
+  const mutationError = registerMutation.error
+    ? (registerMutation.error as any).response?.data?.error ||
+      (registerMutation.error as any).response?.data?.message ||
+      "Inscription échouée. Veuillez réessayer."
+    : null;
+
+  const activeError = localError || mutationError;
+  const isLoading = registerMutation.isPending;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -234,7 +246,7 @@ export default function RegisterScreen() {
               {isLoading ? (
                 <ActivityIndicator color={colors.textLight} />
               ) : (
-                <Text style={styles.submitButtonText}>S'inscrire</Text>
+                <Text style={styles.submitButtonText}>{"S'inscrire"}</Text>
               )}
             </TouchableOpacity>
 

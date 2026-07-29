@@ -1,2 +1,4 @@
 *node_modules/
 *.env
+*init-frontend.sh
+*init-backend.sh

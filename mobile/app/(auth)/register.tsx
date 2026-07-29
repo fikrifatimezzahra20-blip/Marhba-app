@@ -9,13 +9,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  SafeAreaView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useRegister } from "../../hooks/useAuthQueries";
 import { useAuthStore } from "../../store/auth.store";
 import { colors, spacing, typography, shadows } from "../../theme";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -72,8 +72,8 @@ export default function RegisterScreen() {
 
   const mutationError = registerMutation.error
     ? (registerMutation.error as any).response?.data?.error ||
-      (registerMutation.error as any).response?.data?.message ||
-      "Inscription échouée. Veuillez réessayer."
+    (registerMutation.error as any).response?.data?.message ||
+    "Inscription échouée. Veuillez réessayer."
     : null;
 
   const activeError = localError || mutationError;
@@ -121,7 +121,7 @@ export default function RegisterScreen() {
                 />
                 <TextInput
                   style={styles.input}
-                  placeholder="Mohammed Alami"
+                  placeholder="Fatimezzahra Fikri"
                   placeholderTextColor={colors.textMuted}
                   value={fullName}
                   onChangeText={(text) => {

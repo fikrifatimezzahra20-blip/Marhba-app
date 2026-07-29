@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { appStorage } from "../utils/storage";
 import { AuthState, User, LoginPayload, RegisterPayload } from "../types/auth.types";
 import { authService } from "../services/auth.service";
 
@@ -71,7 +71,7 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: "marhba-auth-storage",
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => appStorage),
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,

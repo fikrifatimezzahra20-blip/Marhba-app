@@ -3,7 +3,7 @@ import { useAuthStore } from "../store/auth.store";
 
 // Determine default backend API URL based on environment/platform
 const BASE_URL =
-    process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.46:3000/api";
+    process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.40:3000/api";
 
 export const api = axios.create({
     baseURL: BASE_URL,

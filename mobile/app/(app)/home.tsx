@@ -1,19 +1,12 @@
 import React from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
+import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, ActivityIndicator, Alert, } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useUserProfile, useLogout } from "../../hooks/useAuthQueries";
 import { useAuthStore } from "../../store/auth.store";
 import { colors, spacing, typography, shadows } from "../../theme";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -60,8 +53,12 @@ export default function HomeScreen() {
         {/* Top Bar Header */}
         <View style={styles.topBar}>
           <View style={styles.brandRow}>
-            <View style={styles.miniLogoBadge}>
-              <Ionicons name="sparkles" size={20} color={colors.primary} />
+            <View style={styles.logo}>
+              <Image
+                source={require("../../assets/images/logo.png")}
+                style={styles.logo}
+                resizeMode="contain"
+              />
             </View>
             <Text style={styles.brandName}>Marhba</Text>
           </View>
@@ -76,17 +73,20 @@ export default function HomeScreen() {
         </View>
 
         {/* Hero Banner */}
-        <View style={styles.heroBanner}>
-          <View style={styles.heroHeader}>
-            <Text style={styles.welcomeSubtitle}>BIENVENUE SUR MARHBA 👋</Text>
-            <Text style={styles.heroTitle}>
-              Bonjour, {user?.fullName || "Utilisateur"} !
-            </Text>
-            <Text style={styles.heroDescription}>
-              Ravi de vous revoir. Votre espace personnel est entièrement sécurisé et protégé.
-            </Text>
-          </View>
-        </View>
+        <LinearGradient
+          colors={["#FF8A00", "#FF5A1F"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.heroBanner}
+        >
+          <Text style={styles.welcomeSubtitle}>BIENVENUE SUR MARHBA 👋</Text>
+          <Text style={styles.heroTitle}>
+            Bonjour, {user?.fullName || "Utilisateur"} !
+          </Text>
+          <Text style={styles.heroDescription}>
+            Ravi de vous revoir. Votre espace personnel est entièrement sécurisé et protégé.
+          </Text>
+        </LinearGradient>
 
         {/* User Information Card */}
         <View style={styles.card}>
@@ -127,7 +127,7 @@ export default function HomeScreen() {
         {/* Security & Protection Badge */}
         <View style={styles.protectionCard}>
           <View style={styles.protectionIconContainer}>
-            <Ionicons name="shield-checkmark" size={32} color={colors.success} />
+            <Ionicons name="shield-checkmark" size={32} color={colors.primaryLight} />
           </View>
           <View style={styles.protectionTextContainer}>
             <Text style={styles.protectionTitle}>Session Protégée</Text>
@@ -163,7 +163,11 @@ export default function HomeScreen() {
             <ActivityIndicator color={colors.error} />
           ) : (
             <>
-              <Ionicons name="log-out-outline" size={20} color={colors.error} />
+              <Ionicons
+                name="log-out-outline"
+                size={20}
+                color={colors.primaryLight}
+              />
               <Text style={styles.logoutButtonText}>Se déconnecter</Text>
             </>
           )}
@@ -178,73 +182,102 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+
   container: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     paddingBottom: spacing.xxl,
   },
+
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: spacing.lg,
   },
+
   brandRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
   },
-  miniLogoBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: spacing.borderRadius.md,
-    backgroundColor: colors.primarySoft,
-    justifyContent: "center",
-    alignItems: "center",
+
+  logo: {
+    width: 50,
+    height: 50,
   },
+
   brandName: {
     fontSize: typography.fontSize.xl,
     fontWeight: typography.fontWeight.bold,
-    color: colors.primary,
+    color: colors.textPrimary,
   },
+
   logoutIconButton: {
-    padding: spacing.xs,
-    borderRadius: spacing.borderRadius.sm,
-    backgroundColor: colors.errorBg,
+    width: 42,
+    height: 42,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.primary,
   },
+
   heroBanner: {
-    backgroundColor: colors.primary,
-    borderRadius: spacing.borderRadius.xl,
+    borderRadius: 20,
     padding: spacing.lg,
     marginBottom: spacing.lg,
-    ...shadows.lg,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    elevation: 6,
   },
+
   heroHeader: {},
+
   welcomeSubtitle: {
     fontSize: typography.fontSize.xs,
     fontWeight: typography.fontWeight.semibold,
-    color: colors.secondaryLight,
+    color: colors.textLight,
     letterSpacing: 1,
     marginBottom: spacing.xs,
   },
+
   heroTitle: {
     fontSize: typography.fontSize.xxl,
     fontWeight: typography.fontWeight.bold,
     color: colors.textLight,
     marginBottom: spacing.xs,
   },
+
   heroDescription: {
     fontSize: typography.fontSize.sm,
-    color: "rgba(255, 255, 255, 0.88)",
-    lineHeight: 20,
+    color: "rgba(255,255,255,0.9)",
+    lineHeight: 22,
   },
+
   card: {
     backgroundColor: colors.card,
-    borderRadius: spacing.borderRadius.xl,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
     padding: spacing.lg,
     marginBottom: spacing.lg,
-    ...shadows.md,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    elevation: 4,
   },
+
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -254,120 +287,148 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
     paddingBottom: spacing.sm,
   },
+
   cardTitle: {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.semibold,
     color: colors.textPrimary,
   },
+
   profileContent: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
   },
+
   avatarContainer: {
     width: 64,
     height: 64,
-    borderRadius: spacing.borderRadius.round,
-    backgroundColor: colors.primarySoft,
-    justifyContent: "center",
-    alignItems: "center",
+    borderRadius: 32,
+    backgroundColor: colors.surface,
     borderWidth: 2,
     borderColor: colors.primary,
+    justifyContent: "center",
+    alignItems: "center",
   },
+
   avatarText: {
     fontSize: typography.fontSize.xl,
     fontWeight: typography.fontWeight.bold,
     color: colors.primary,
   },
+
   detailsContainer: {
     flex: 1,
     gap: spacing.xs,
   },
+
   detailRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.xs,
   },
+
   detailLabel: {
     fontSize: typography.fontSize.sm,
     color: colors.textMuted,
     fontWeight: typography.fontWeight.medium,
   },
+
   detailValue: {
     fontSize: typography.fontSize.sm,
     color: colors.textPrimary,
     fontWeight: typography.fontWeight.semibold,
     flexShrink: 1,
   },
+
   protectionCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.successBg,
-    borderRadius: spacing.borderRadius.lg,
+    backgroundColor: colors.card,
+    borderRadius: 16,
     padding: spacing.md,
     marginBottom: spacing.lg,
     borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.2)",
+    borderColor: colors.border,
     gap: spacing.md,
   },
+
   protectionIconContainer: {
     width: 48,
     height: 48,
-    borderRadius: spacing.borderRadius.md,
-    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    backgroundColor: colors.surface,
     justifyContent: "center",
     alignItems: "center",
   },
+
   protectionTextContainer: {
     flex: 1,
   },
+
   protectionTitle: {
     fontSize: typography.fontSize.md,
     fontWeight: typography.fontWeight.semibold,
     color: colors.textPrimary,
   },
+
   protectionDescription: {
     fontSize: typography.fontSize.xs,
     color: colors.textSecondary,
     marginTop: 2,
   },
+
   gridContainer: {
     flexDirection: "row",
     gap: spacing.md,
     marginBottom: spacing.lg,
   },
+
   gridCard: {
     flex: 1,
     backgroundColor: colors.card,
-    borderRadius: spacing.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 16,
     padding: spacing.md,
     alignItems: "center",
-    ...shadows.sm,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    elevation: 3,
   },
+
   gridCardTitle: {
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.semibold,
     color: colors.textPrimary,
     marginTop: spacing.xs,
   },
+
   gridCardSubtitle: {
     fontSize: typography.fontSize.xs,
     color: colors.textMuted,
     marginTop: 2,
   },
+
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.errorBg,
-    borderRadius: spacing.borderRadius.md,
-    height: 50,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    height: 52,
     gap: spacing.sm,
     borderWidth: 1,
-    borderColor: "rgba(239, 68, 68, 0.3)",
+    borderColor: colors.primary,
   },
+
   logoutButtonText: {
-    color: colors.error,
+    color: colors.primaryLight,
     fontSize: typography.fontSize.md,
     fontWeight: typography.fontWeight.semibold,
   },
